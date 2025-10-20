@@ -298,6 +298,56 @@
             font-size: 12px;
             backdrop-filter: blur(10px);
         }
+        
+        /* Game mode selector */
+        .game-mode {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+        
+        /* Power-up effects */
+        .power-up {
+            animation: powerUpGlow 1s infinite alternate;
+        }
+        
+        @keyframes powerUpGlow {
+            0% { opacity: 0.7; filter: brightness(1); }
+            100% { opacity: 1; filter: brightness(1.3); }
+        }
+        
+        /* Particle effects */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleMove 1s ease-out forwards;
+        }
+        
+        @keyframes particleMove {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.1) translate(var(--dx), var(--dy)); }
+        }
     </style>
 </head>
 <body>
@@ -373,7 +423,9 @@
                 dx: 5,
                 dy: 3,
                 radius: 8,
-                speed: 5
+                speed: 5,
+                maxSpeed: 12,
+                trail: []
             },
             
             leftPaddle: {
@@ -381,7 +433,8 @@
                 y: 175,
                 width: 10,
                 height: 50,
-                speed: 6
+                speed: 6,
+                originalHeight: 50
             },
             
             rightPaddle: {
@@ -389,13 +442,38 @@
                 y: 175,
                 width: 10,
                 height: 50,
-                speed: 6
+                speed: 6,
+                originalHeight: 50
+            },
+            
+            // Power-ups
+            powerUps: [],
+            powerUpTimer: 0,
+            activePowerUps: {},
+            
+            // AI settings
+            aiSettings: {
+                'ai-easy': { 
+                    speed: 4, 
+                    reactionTime: 0.7, 
+                    errorRate: 0.3,
+                    prediction: 0.2 
+                },
+                'ai-hard': { 
+                    speed: 7, 
+                    reactionTime: 0.95, 
+                    errorRate: 0.1,
+                    prediction: 0.8 
+                }
             },
             
             // Scores
             leftScore: 0,
             rightScore: 0,
             maxScore: 7,
+            
+            // Particles
+            particles: [],
             
             // Input
             keys: {},
@@ -475,6 +553,131 @@
             } catch (e) {
                 console.log('Sound play failed');
             }
+        }
+        
+        function playPowerUpSound() {
+            if (!audioContext) return;
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.15);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3);
+                
+                gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Sound play failed');
+            }
+        }
+        
+        // Power-up system
+        const powerUpTypes = {
+            SPEED_BOOST: { 
+                color: '#FFD700', 
+                duration: 5000, 
+                effect: 'speed',
+                icon: '⚡'
+            },
+            BIG_PADDLE: { 
+                color: '#00FF00', 
+                duration: 8000, 
+                effect: 'paddle_size',
+                icon: '⬆'
+            },
+            SLOW_BALL: { 
+                color: '#00FFFF', 
+                duration: 6000, 
+                effect: 'ball_slow',
+                icon: '🐌'
+            },
+            MULTI_BALL: { 
+                color: '#FF69B4', 
+                duration: 0, 
+                effect: 'multi_ball',
+                icon: '●●'
+            }
+        };
+        
+        function spawnPowerUp() {
+            if (gameState.powerUps.length >= 1 || Math.random() < 0.7) return;
+            
+            const types = Object.keys(powerUpTypes);
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            gameState.powerUps.push({
+                x: Math.random() * (gameState.canvas.width - 40) + 20,
+                y: Math.random() * (gameState.canvas.height - 40) + 20,
+                type: type,
+                timeLeft: 10000,
+                pulse: 0
+            });
+        }
+        
+        function updatePowerUps(deltaTime) {
+            gameState.powerUps = gameState.powerUps.filter(powerUp => {
+                powerUp.timeLeft -= deltaTime;
+                powerUp.pulse += deltaTime * 0.005;
+                return powerUp.timeLeft > 0;
+            });
+        }
+        
+        function collectPowerUp(powerUp) {
+            playPowerUpSound();
+            createParticles(powerUp.x, powerUp.y, powerUpTypes[powerUp.type].color);
+            
+            switch (powerUp.type) {
+                case 'SPEED_BOOST':
+                    gameState.leftPaddle.speed *= 1.5;
+                    gameState.activePowerUps.speed = setTimeout(() => {
+                        gameState.leftPaddle.speed = 6;
+                    }, powerUpTypes[powerUp.type].duration);
+                    break;
+                case 'BIG_PADDLE':
+                    gameState.leftPaddle.height = gameState.leftPaddle.originalHeight * 1.5;
+                    gameState.activePowerUps.paddle = setTimeout(() => {
+                        gameState.leftPaddle.height = gameState.leftPaddle.originalHeight;
+                    }, powerUpTypes[powerUp.type].duration);
+                    break;
+                case 'SLOW_BALL':
+                    gameState.ball.dx *= 0.5;
+                    gameState.ball.dy *= 0.5;
+                    gameState.activePowerUps.slow = setTimeout(() => {
+                        gameState.ball.dx = gameState.ball.dx > 0 ? gameState.ball.speed : -gameState.ball.speed;
+                        gameState.ball.dy = (Math.random() - 0.5) * 6;
+                    }, powerUpTypes[powerUp.type].duration);
+                    break;
+            }
+        }
+        
+        // Particle system
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 6; i++) {
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    life: 1,
+                    color: color
+                });
+            }
+        }
+        
+        function updateParticles(deltaTime) {
+            gameState.particles = gameState.particles.filter(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life -= deltaTime * 0.001;
+                return particle.life > 0;
+            });
         }
 
         function playWinSound() {

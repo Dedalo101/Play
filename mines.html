@@ -136,6 +136,17 @@
             100% { transform: scale(1); }
         }
         
+        @keyframes hintPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 235, 59, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 235, 59, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 235, 59, 0); }
+        }
+        
+        @keyframes particleFade {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+        
         .number-1 { color: #1976d2; }
         .number-2 { color: #388e3c; }
         .number-3 { color: #d32f2f; }
@@ -657,22 +668,102 @@
             cell.isRevealed = true;
             gameState.revealed++;
             
+            // Create particles for visual feedback
+            createMineParticles(col * 30 + 15, row * 25 + 15, cell.neighborMines > 0 ? '#4CAF50' : '#2196F3');
+            
             // If no neighboring mines, reveal neighbors automatically
             if (cell.neighborMines === 0) {
-                for (let i = -1; i <= 1; i++) {
-                    for (let j = -1; j <= 1; j++) {
-                        const newRow = row + i;
-                        const newCol = col + j;
-                        
-                        if (newRow >= 0 && newRow < gameState.rows && 
-                            newCol >= 0 && newCol < gameState.cols) {
-                            revealCell(newRow, newCol);
+                setTimeout(() => {
+                    for (let i = -1; i <= 1; i++) {
+                        for (let j = -1; j <= 1; j++) {
+                            const newRow = row + i;
+                            const newCol = col + j;
+                            
+                            if (newRow >= 0 && newRow < gameState.rows && 
+                                newCol >= 0 && newCol < gameState.cols) {
+                                revealCell(newRow, newCol);
+                            }
                         }
+                    }
+                }, 50); // Small delay for cascade effect
+            }
+            
+            updateDisplay();
+        }
+        
+        // Hint system
+        function giveHint() {
+            if (gameState.gameOver) return;
+            
+            // Find a safe cell to reveal
+            const safeCells = [];
+            for (let i = 0; i < gameState.rows; i++) {
+                for (let j = 0; j < gameState.cols; j++) {
+                    const cell = gameState.board[i][j];
+                    if (!cell.isRevealed && !cell.isFlagged && !cell.isMine) {
+                        safeCells.push({row: i, col: j});
                     }
                 }
             }
             
-            updateDisplay();
+            if (safeCells.length > 0) {
+                const randomSafe = safeCells[Math.floor(Math.random() * safeCells.length)];
+                
+                // Highlight the hint cell
+                const cellElement = document.querySelector(`[data-row="${randomSafe.row}"][data-col="${randomSafe.col}"]`);
+                if (cellElement) {
+                    cellElement.style.animation = 'hintPulse 1s ease-in-out 3';
+                    setTimeout(() => {
+                        cellElement.style.animation = '';
+                    }, 3000);
+                }
+                
+                playClickSound();
+            } else {
+                // Find cells that should be flagged
+                const mineCells = [];
+                for (let i = 0; i < gameState.rows; i++) {
+                    for (let j = 0; j < gameState.cols; j++) {
+                        const cell = gameState.board[i][j];
+                        if (!cell.isFlagged && cell.isMine) {
+                            mineCells.push({row: i, col: j});
+                        }
+                    }
+                }
+                
+                if (mineCells.length > 0) {
+                    const randomMine = mineCells[Math.floor(Math.random() * mineCells.length)];
+                    const cellElement = document.querySelector(`[data-row="${randomMine.row}"][data-col="${randomMine.col}"]`);
+                    if (cellElement) {
+                        cellElement.style.animation = 'hintPulse 1s ease-in-out 3';
+                        cellElement.style.backgroundColor = '#ffeb3b';
+                        setTimeout(() => {
+                            cellElement.style.animation = '';
+                            if (!gameState.board[randomMine.row][randomMine.col].isFlagged) {
+                                cellElement.style.backgroundColor = '';
+                            }
+                        }, 3000);
+                    }
+                }
+            }
+        }
+        
+        // Particle system for visual feedback
+        function createMineParticles(x, y, color) {
+            // This would create visual particles, but for simplicity we'll just add a brief flash
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.width = '4px';
+            particle.style.height = '4px';
+            particle.style.backgroundColor = color;
+            particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
+            particle.style.animation = 'particleFade 0.5s ease-out forwards';
+            
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 500);
         }
 
         function gameOver(won, explodedRow = -1, explodedCol = -1) {
