@@ -575,19 +575,65 @@
                 for (let i = 0; i < snake.length; i++) {
                     const segment = snake[i];
                     const alpha = 1 - (i * 0.05); // Fade effect for tail
-                    ctx.fillStyle = i === 0 ? '#00FF00' : `rgba(0, 255, 0, ${Math.max(alpha, 0.3)})`;
-                    ctx.fillRect(segment.x + 1, segment.y + 1, gridSize - 2, gridSize - 2);
+                    if (i === 0) {
+                        // Snake head with eyes
+                        ctx.fillStyle = '#00FF00';
+                        ctx.fillRect(segment.x + 1, segment.y + 1, gridSize - 2, gridSize - 2);
+                        
+                        // Eyes
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect(segment.x + 4, segment.y + 4, 3, 3);
+                        ctx.fillRect(segment.x + 13, segment.y + 4, 3, 3);
+                    } else {
+                        ctx.fillStyle = `rgba(0, 255, 0, ${Math.max(alpha, 0.3)})`;
+                        ctx.fillRect(segment.x + 1, segment.y + 1, gridSize - 2, gridSize - 2);
+                    }
                 }
 
                 // Draw food (pulsing red)
                 const pulse = Math.sin(Date.now() * 0.01) * 0.2 + 0.8;
                 ctx.fillStyle = `rgba(255, 0, 0, ${pulse})`;
                 ctx.fillRect(food.x + 1, food.y + 1, gridSize - 2, gridSize - 2);
+                
+                // Draw power-ups
+                powerUps.forEach(powerUp => {
+                    const powerUpPulse = Math.sin(powerUp.pulse) * 0.3 + 0.7;
+                    const config = powerUpTypes[powerUp.type];
+                    ctx.fillStyle = config.color;
+                    ctx.globalAlpha = powerUpPulse;
+                    ctx.fillRect(powerUp.x + 2, powerUp.y + 2, gridSize - 4, gridSize - 4);
+                    
+                    // Power-up symbol
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    const symbol = powerUp.type === 'SPEED_BOOST' ? '⚡' : 
+                                  powerUp.type === 'SCORE_MULTIPLIER' ? '×2' :
+                                  powerUp.type === 'SLOW_TIME' ? '⏳' : '+50';
+                    ctx.fillText(symbol, powerUp.x + gridSize/2, powerUp.y + gridSize/2 + 4);
+                    ctx.globalAlpha = 1;
+                });
+                
+                // Draw particles
+                particles.forEach(particle => {
+                    ctx.fillStyle = particle.color;
+                    ctx.globalAlpha = particle.life;
+                    ctx.fillRect(particle.x - 1, particle.y - 1, 2, 2);
+                    ctx.globalAlpha = 1;
+                });
 
                 // Draw border/walls
                 ctx.strokeStyle = '#FFFFFF';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw level indicator if score multiplier is active
+                if (scoreMultiplier > 1) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = '14px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`×${scoreMultiplier} MULTIPLIER!`, 10, 20);
+                }
             }
 
             // Update game speed based on snake length
