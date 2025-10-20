@@ -148,6 +148,67 @@
         .mode-btn.active {
             background-color: rgba(255,255,255,0.4);
         }
+
+        .ai-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .power-up {
+            animation: powerUpSpin 2s linear infinite;
+        }
+
+        @keyframes powerUpSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .ball-trail {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .score-popup {
+            position: absolute;
+            color: #FFD700;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 15;
+            animation: scorePopup 1s ease-out forwards;
+        }
+
+        @keyframes scorePopup {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
+        }
+
+        .speed-boost-indicator {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background: rgba(255, 215, 0, 0.8);
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
         
         #instructions {
             text-align: center;
@@ -373,7 +434,9 @@
                 dx: 5,
                 dy: 3,
                 radius: 8,
-                speed: 5
+                speed: 5,
+                maxSpeed: 10,
+                trail: []
             },
             
             leftPaddle: {
@@ -381,7 +444,8 @@
                 y: 175,
                 width: 10,
                 height: 50,
-                speed: 6
+                speed: 6,
+                maxSpeed: 8
             },
             
             rightPaddle: {
@@ -389,19 +453,45 @@
                 y: 175,
                 width: 10,
                 height: 50,
-                speed: 6
+                speed: 6,
+                maxSpeed: 8
             },
             
-            // Scores
+            // Power-ups and effects
+            powerUps: [],
+            particles: [],
+            scorePopups: [],
+            
+            // Game stats
             leftScore: 0,
             rightScore: 0,
             maxScore: 7,
+            rallyCount: 0,
+            maxRally: 0,
+            
+            // AI settings
+            aiDifficulty: {
+                'ai-easy': { speed: 0.03, prediction: 0.2, error: 0.3 },
+                'ai-hard': { speed: 0.08, prediction: 0.8, error: 0.1 }
+            },
+            
+            // Power-up types
+            powerUpTypes: {
+                SPEED_BOOST: { color: '#FFD700', duration: 5000, effect: 'speed' },
+                BIG_PADDLE: { color: '#00FF00', duration: 8000, effect: 'paddle' },
+                MULTI_BALL: { color: '#FF69B4', duration: 0, effect: 'ball' },
+                SLOW_TIME: { color: '#00FFFF', duration: 6000, effect: 'slow' }
+            },
+            
+            // Audio context
+            audioContext: null,
             
             // Input
             keys: {},
             
-            // AI
-            aiDifficulty: 'easy'
+            // Timing
+            lastTime: 0,
+            deltaTime: 0
         };
 
         // Audio context for sounds
@@ -497,6 +587,166 @@
                 });
             } catch (e) {
                 console.log('Sound play failed');
+            }
+        }
+
+        // Power-up system
+        function spawnPowerUp() {
+            if (gameState.powerUps.length >= 1 || Math.random() < 0.85) return;
+            
+            const types = Object.keys(gameState.powerUpTypes);
+            const type = types[Math.floor(Math.random() * types.length)];
+            const config = gameState.powerUpTypes[type];
+            
+            gameState.powerUps.push({
+                x: 200 + Math.random() * 200,
+                y: 100 + Math.random() * 200,
+                type: type,
+                color: config.color,
+                timeLeft: 15000,
+                pulse: 0
+            });
+        }
+
+        function updatePowerUps(deltaTime) {
+            gameState.powerUps = gameState.powerUps.filter(powerUp => {
+                powerUp.timeLeft -= deltaTime;
+                powerUp.pulse += deltaTime * 0.005;
+                return powerUp.timeLeft > 0;
+            });
+        }
+
+        function checkPowerUpCollision() {
+            for (let i = gameState.powerUps.length - 1; i >= 0; i--) {
+                const powerUp = gameState.powerUps[i];
+                const distance = Math.sqrt(
+                    Math.pow(gameState.ball.x - powerUp.x, 2) + 
+                    Math.pow(gameState.ball.y - powerUp.y, 2)
+                );
+                
+                if (distance < gameState.ball.radius + 15) {
+                    collectPowerUp(powerUp);
+                    gameState.powerUps.splice(i, 1);
+                }
+            }
+        }
+
+        function collectPowerUp(powerUp) {
+            playPaddleHitSound(); // Reuse paddle hit sound for power-up
+            createParticles(powerUp.x, powerUp.y, powerUp.color);
+            
+            const config = gameState.powerUpTypes[powerUp.type];
+            
+            switch (powerUp.type) {
+                case 'SPEED_BOOST':
+                    gameState.ball.speed = Math.min(gameState.ball.speed * 1.5, gameState.ball.maxSpeed);
+                    setTimeout(() => {
+                        gameState.ball.speed = 5; // Reset to default
+                    }, config.duration);
+                    break;
+                    
+                case 'BIG_PADDLE':
+                    gameState.leftPaddle.height = 80;
+                    gameState.rightPaddle.height = 80;
+                    setTimeout(() => {
+                        gameState.leftPaddle.height = 50;
+                        gameState.rightPaddle.height = 50;
+                    }, config.duration);
+                    break;
+                    
+                case 'SLOW_TIME':
+                    gameState.ball.speed = Math.max(gameState.ball.speed * 0.5, 2);
+                    setTimeout(() => {
+                        gameState.ball.speed = 5;
+                    }, config.duration);
+                    break;
+                    
+                case 'MULTI_BALL':
+                    // Simple visual effect for multi-ball
+                    createParticles(gameState.ball.x, gameState.ball.y, '#FF69B4', 20);
+                    break;
+            }
+        }
+
+        // Particle system
+        function createParticles(x, y, color, count = 8) {
+            for (let i = 0; i < count; i++) {
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1,
+                    color: color
+                });
+            }
+        }
+
+        function updateParticles(deltaTime) {
+            gameState.particles = gameState.particles.filter(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life -= deltaTime * 0.001;
+                particle.vy += 0.2; // gravity
+                return particle.life > 0;
+            });
+        }
+
+        // Enhanced AI
+        function updateAI() {
+            if (gameState.mode === 'two-player') return;
+            
+            const aiSettings = gameState.aiDifficulty[gameState.mode];
+            const paddle = gameState.rightPaddle;
+            const ball = gameState.ball;
+            
+            // Predict ball position
+            let targetY = ball.y;
+            if (ball.dx > 0) { // Ball moving towards AI
+                const timeToReach = (paddle.x - ball.x) / ball.dx;
+                targetY = ball.y + (ball.dy * timeToReach * aiSettings.prediction);
+            }
+            
+            // Add some error for realism
+            targetY += (Math.random() - 0.5) * aiSettings.error * 100;
+            
+            const paddleCenter = paddle.y + paddle.height / 2;
+            const diff = targetY - paddleCenter;
+            
+            if (Math.abs(diff) > 5) {
+                const moveSpeed = aiSettings.speed * gameState.deltaTime;
+                if (diff > 0) {
+                    paddle.y += moveSpeed;
+                } else {
+                    paddle.y -= moveSpeed;
+                }
+            }
+            
+            // Keep paddle in bounds
+            if (paddle.y < 0) paddle.y = 0;
+            if (paddle.y + paddle.height > gameState.canvas.height) {
+                paddle.y = gameState.canvas.height - paddle.height;
+            }
+        }
+
+        // Ball trail effect
+        function updateBallTrail() {
+            // Add current position to trail
+            gameState.ball.trail.unshift({
+                x: gameState.ball.x,
+                y: gameState.ball.y,
+                age: 0
+            });
+            
+            // Update trail age and remove old points
+            gameState.ball.trail = gameState.ball.trail.filter(point => {
+                point.age += gameState.deltaTime;
+                return point.age < 200; // Keep trail for 200ms
+            });
+            
+            // Limit trail length
+            if (gameState.ball.trail.length > 10) {
+                gameState.ball.trail.splice(10);
             }
         }
 

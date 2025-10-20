@@ -243,6 +243,67 @@
             margin: 10px;
         }
         
+        .achievements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .achievement-popup {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 300px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: bounceIn 0.5s ease-out;
+        }
+        
+        .achievement-popup h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .cell.hint {
+            background-color: #4CAF50 !important;
+            animation: hintPulse 1s ease-in-out 3;
+        }
+        
+        @keyframes hintPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 20px #4CAF50; }
+        }
+        
+        .cell.auto-flagged {
+            animation: autoFlagFlash 0.5s ease-in-out;
+        }
+        
+        @keyframes autoFlagFlash {
+            0%, 100% { background-color: #ffeb3b; }
+            50% { background-color: #FF9800; }
+        }
+        
         @media (max-width: 600px) {
             h1 {
                 font-size: 2rem;
@@ -322,13 +383,23 @@
     
     <div id="controls">
         <button id="new-game-btn">New Game</button>
-        <button id="hint-btn">Hint</button>
+        <button id="hint-btn">Hint (<span id="hint-count">3</span>)</button>
+        <button id="auto-flag-btn">Auto Flag</button>
+        <button id="safe-reveal-btn">Safe Reveal</button>
+    </div>
+    
+    <div class="achievements" id="achievements" style="display: none;">
+        <div class="achievement-popup">
+            <h3>🏆 Achievement Unlocked!</h3>
+            <p id="achievement-text"></p>
+        </div>
     </div>
     
     <div id="instructions">
         <p><strong>Desktop:</strong> Left click to reveal, right click to flag</p>
         <p><strong>Mobile:</strong> Tap to reveal, long press to flag</p>
         <p>Find all mines without exploding any!</p>
+        <p><strong>Hints:</strong> Get help finding safe cells • <strong>Auto Flag:</strong> Automatically flag obvious mines</p>
     </div>
 
     <div class="game-over" id="game-over">
@@ -355,7 +426,15 @@
             firstClick: true,
             timer: 0,
             timerInterval: null,
-            difficulty: 'easy'
+            difficulty: 'easy',
+            hintsUsed: 0,
+            hintsRemaining: 3,
+            perfectGame: true,
+            startTime: null,
+            gamesPlayed: parseInt(localStorage.getItem('minesGamesPlayed') || 0),
+            gamesWon: parseInt(localStorage.getItem('minesGamesWon') || 0),
+            bestTimes: JSON.parse(localStorage.getItem('minesBestTimes') || '{"easy": null, "medium": null, "hard": null}'),
+            achievements: JSON.parse(localStorage.getItem('minesAchievements') || '[]')
         };
 
         // Audio context for sounds
@@ -452,6 +531,168 @@
             } catch (e) {
                 console.log('Sound play failed');
             }
+        }
+
+        // Achievement system
+        const achievementDefinitions = {
+            'first_win': { name: 'First Victory!', description: 'Win your first game' },
+            'speed_demon': { name: 'Speed Demon', description: 'Win an easy game in under 30 seconds' },
+            'perfectionist': { name: 'Perfectionist', description: 'Win without using hints' },
+            'mine_hunter': { name: 'Mine Hunter', description: 'Win 10 games' },
+            'flag_master': { name: 'Flag Master', description: 'Use auto-flag feature effectively' },
+            'streak_master': { name: 'Streak Master', description: 'Win 5 games in a row' },
+            'expert_solver': { name: 'Expert Solver', description: 'Win a hard difficulty game' }
+        };
+
+        function checkAchievements() {
+            const newAchievements = [];
+            
+            // First win
+            if (gameState.gamesWon === 1 && !gameState.achievements.includes('first_win')) {
+                newAchievements.push('first_win');
+            }
+            
+            // Speed demon (easy game under 30 seconds)
+            if (gameState.difficulty === 'easy' && gameState.timer < 30 && gameState.gameWon && !gameState.achievements.includes('speed_demon')) {
+                newAchievements.push('speed_demon');
+            }
+            
+            // Perfectionist (win without hints)
+            if (gameState.hintsUsed === 0 && gameState.gameWon && !gameState.achievements.includes('perfectionist')) {
+                newAchievements.push('perfectionist');
+            }
+            
+            // Mine hunter (10 wins)
+            if (gameState.gamesWon >= 10 && !gameState.achievements.includes('mine_hunter')) {
+                newAchievements.push('mine_hunter');
+            }
+            
+            // Expert solver (hard difficulty win)
+            if (gameState.difficulty === 'hard' && gameState.gameWon && !gameState.achievements.includes('expert_solver')) {
+                newAchievements.push('expert_solver');
+            }
+            
+            newAchievements.forEach(achievementId => {
+                showAchievement(achievementId);
+                gameState.achievements.push(achievementId);
+            });
+            
+            localStorage.setItem('minesAchievements', JSON.stringify(gameState.achievements));
+        }
+
+        function showAchievement(achievementId) {
+            const achievement = achievementDefinitions[achievementId];
+            const achievementElement = document.getElementById('achievements');
+            const textElement = document.getElementById('achievement-text');
+            
+            textElement.textContent = `${achievement.name}: ${achievement.description}`;
+            achievementElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                achievementElement.style.display = 'none';
+            }, 3000);
+        }
+
+        // Enhanced hint system
+        function useHint() {
+            if (gameState.hintsRemaining <= 0 || gameState.gameOver) return;
+            
+            initAudio();
+            gameState.hintsRemaining--;
+            gameState.hintsUsed++;
+            gameState.perfectGame = false;
+            
+            document.getElementById('hint-count').textContent = gameState.hintsRemaining;
+            
+            // Find a safe cell to reveal
+            for (let i = 0; i < gameState.rows; i++) {
+                for (let j = 0; j < gameState.cols; j++) {
+                    const cell = gameState.board[i][j];
+                    if (!cell.isRevealed && !cell.isFlagged && !cell.isMine) {
+                        const cellElement = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+                        cellElement.classList.add('hint');
+                        
+                        setTimeout(() => {
+                            cellElement.classList.remove('hint');
+                        }, 3000);
+                        
+                        playClickSound();
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Auto-flag obvious mines
+        function autoFlag() {
+            if (gameState.gameOver) return;
+            
+            let flaggedCount = 0;
+            
+            for (let i = 0; i < gameState.rows; i++) {
+                for (let j = 0; j < gameState.cols; j++) {
+                    const cell = gameState.board[i][j];
+                    if (cell.isRevealed && cell.neighborMines > 0) {
+                        const neighbors = getNeighbors(i, j);
+                        const unrevealedNeighbors = neighbors.filter(([r, c]) => !gameState.board[r][c].isRevealed);
+                        const flaggedNeighbors = neighbors.filter(([r, c]) => gameState.board[r][c].isFlagged);
+                        
+                        if (unrevealedNeighbors.length === cell.neighborMines - flaggedNeighbors.length) {
+                            unrevealedNeighbors.forEach(([r, c]) => {
+                                if (!gameState.board[r][c].isFlagged) {
+                                    gameState.board[r][c].isFlagged = true;
+                                    gameState.flags++;
+                                    const cellElement = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                                    cellElement.classList.add('flagged', 'auto-flagged');
+                                    cellElement.textContent = '🚩';
+                                    flaggedCount++;
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            
+            if (flaggedCount > 0) {
+                playFlagSound();
+                updateDisplay();
+            }
+        }
+
+        // Safe reveal feature
+        function safeReveal() {
+            if (gameState.gameOver || gameState.hintsRemaining <= 0) return;
+            
+            gameState.hintsRemaining--;
+            gameState.hintsUsed++;
+            document.getElementById('hint-count').textContent = gameState.hintsRemaining;
+            
+            for (let i = 0; i < gameState.rows; i++) {
+                for (let j = 0; j < gameState.cols; j++) {
+                    const cell = gameState.board[i][j];
+                    if (!cell.isRevealed && !cell.isFlagged && !cell.isMine && cell.neighborMines === 0) {
+                        revealCell(i, j);
+                        playClickSound();
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Helper function to get neighboring cells
+        function getNeighbors(row, col) {
+            const neighbors = [];
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue;
+                    const newRow = row + i;
+                    const newCol = col + j;
+                    if (newRow >= 0 && newRow < gameState.rows && newCol >= 0 && newCol < gameState.cols) {
+                        neighbors.push([newRow, newCol]);
+                    }
+                }
+            }
+            return neighbors;
         }
 
         const difficulties = {
@@ -720,6 +961,21 @@
         function checkWin() {
             const totalCells = gameState.rows * gameState.cols;
             if (gameState.revealed === totalCells - gameState.mines) {
+                gameState.gameWon = true;
+                gameState.gamesWon++;
+                
+                // Update best time
+                if (!gameState.bestTimes[gameState.difficulty] || gameState.timer < gameState.bestTimes[gameState.difficulty]) {
+                    gameState.bestTimes[gameState.difficulty] = gameState.timer;
+                    localStorage.setItem('minesBestTimes', JSON.stringify(gameState.bestTimes));
+                }
+                
+                // Save statistics
+                localStorage.setItem('minesGamesWon', gameState.gamesWon.toString());
+                
+                // Check achievements
+                checkAchievements();
+                
                 gameOver(true);
             }
         }
@@ -806,13 +1062,20 @@
 
         function setupEventListeners() {
             document.getElementById('new-game-btn').addEventListener('click', newGame);
-            document.getElementById('hint-btn').addEventListener('click', giveHint);
+            document.getElementById('hint-btn').addEventListener('click', useHint);
+            document.getElementById('auto-flag-btn').addEventListener('click', autoFlag);
+            document.getElementById('safe-reveal-btn').addEventListener('click', safeReveal);
             
             // Difficulty buttons
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     setDifficulty(e.target.dataset.difficulty);
                 });
+            });
+            
+            // Close achievement popup when clicked
+            document.getElementById('achievements').addEventListener('click', function() {
+                this.style.display = 'none';
             });
             
             console.log('Event listeners set up');
