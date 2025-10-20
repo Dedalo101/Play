@@ -80,6 +80,64 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
+        .game-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .difficulty-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .difficulty-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+        
+        .power-up {
+            animation: powerUpPulse 1s infinite alternate;
+        }
+        
+        @keyframes powerUpPulse {
+            0% { opacity: 0.7; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        .particles {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
         #controls {
             text-align: center;
             margin: 20px 0;
@@ -207,6 +265,25 @@
     
     <div id="score">Score: 0</div>
     
+    <div class="game-stats">
+        <div class="stat-item">
+            Level: <span id="level">1</span>
+        </div>
+        <div class="stat-item">
+            Length: <span id="length">1</span>
+        </div>
+        <div class="stat-item">
+            High Score: <span id="high-score">0</span>
+        </div>
+    </div>
+    
+    <div class="difficulty-selector">
+        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="normal">Normal</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        <button class="difficulty-btn" data-difficulty="extreme">Extreme</button>
+    </div>
+    
     <div id="controls">
         <button id="start-btn">Start Game</button>
         <button id="pause-btn" disabled>Pause</button>
@@ -268,15 +345,38 @@
             // Game variables
             let snake = [{x: 200, y: 200}];
             let food = {};
+            let powerUps = [];
+            let particles = [];
             let direction = {x: 0, y: 0};
             let nextDirection = {x: 0, y: 0};
             let score = 0;
+            let level = 1;
+            let highScore = localStorage.getItem('snakeHighScore') || 0;
             let gameRunning = false;
             let gamePaused = false;
             let gameLoop;
             let gameSpeed = 150;
             let baseSpeed = 150;
             let maxSpeed = 50;
+            let difficulty = 'normal';
+            let scoreMultiplier = 1;
+            let powerUpTimer = 0;
+            
+            // Difficulty settings
+            const difficultySettings = {
+                easy: { baseSpeed: 200, maxSpeed: 80, scoreMultiplier: 0.8 },
+                normal: { baseSpeed: 150, maxSpeed: 60, scoreMultiplier: 1.0 },
+                hard: { baseSpeed: 100, maxSpeed: 40, scoreMultiplier: 1.5 },
+                extreme: { baseSpeed: 80, maxSpeed: 20, scoreMultiplier: 2.0 }
+            };
+            
+            // Power-up types
+            const powerUpTypes = {
+                SPEED_BOOST: { color: '#FFD700', duration: 5000, effect: 'speed' },
+                SCORE_MULTIPLIER: { color: '#FF69B4', duration: 8000, effect: 'score' },
+                SLOW_TIME: { color: '#00FFFF', duration: 6000, effect: 'slow' },
+                BONUS_POINTS: { color: '#FF6347', duration: 0, effect: 'points' }
+            };
 
             // Audio context for sounds
             let audioContext;
@@ -312,10 +412,145 @@
                     console.log('Sound play failed');
                 }
             }
+            
+            function playPowerUpSound() {
+                if (!audioContext) return;
+                try {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.2);
+                    
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } catch (e) {
+                    console.log('Sound play failed');
+                }
+            }
+            
+            function playLevelUpSound() {
+                if (!audioContext) return;
+                try {
+                    const frequencies = [523.25, 659.25, 783.99, 1046.50]; // C-E-G-C
+                    frequencies.forEach((freq, index) => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.1);
+                        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime + index * 0.1);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + 0.2);
+                        
+                        oscillator.start(audioContext.currentTime + index * 0.1);
+                        oscillator.stop(audioContext.currentTime + index * 0.1 + 0.2);
+                    });
+                } catch (e) {
+                    console.log('Sound play failed');
+                }
+            }
 
+            // Initialize game elements
+            const levelElement = document.getElementById('level');
+            const lengthElement = document.getElementById('length');
+            const highScoreElement = document.getElementById('high-score');
+            
+            // Update high score display
+            if (highScoreElement) {
+                highScoreElement.textContent = highScore;
+            }
+            
             // Grid size
             const gridSize = 20;
             const tileCount = canvas.width / gridSize;
+            
+            // Power-up system
+            function spawnPowerUp() {
+                if (powerUps.length >= 2 || Math.random() < 0.7) return;
+                
+                const types = Object.keys(powerUpTypes);
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                let position;
+                do {
+                    position = {
+                        x: Math.floor(Math.random() * tileCount) * gridSize,
+                        y: Math.floor(Math.random() * tileCount) * gridSize
+                    };
+                } while (snake.some(segment => segment.x === position.x && segment.y === position.y) ||
+                        (food.x === position.x && food.y === position.y));
+                
+                powerUps.push({
+                    ...position,
+                    type: type,
+                    timeLeft: 8000,
+                    pulse: 0
+                });
+            }
+            
+            function updatePowerUps(deltaTime) {
+                powerUps = powerUps.filter(powerUp => {
+                    powerUp.timeLeft -= deltaTime;
+                    powerUp.pulse += deltaTime * 0.005;
+                    return powerUp.timeLeft > 0;
+                });
+            }
+            
+            function collectPowerUp(powerUp) {
+                playPowerUpSound();
+                createParticles(powerUp.x + gridSize/2, powerUp.y + gridSize/2, powerUpTypes[powerUp.type].color);
+                
+                switch (powerUp.type) {
+                    case 'SPEED_BOOST':
+                        gameSpeed = Math.max(gameSpeed * 0.7, 30);
+                        setTimeout(() => updateSpeed(), powerUpTypes[powerUp.type].duration);
+                        break;
+                    case 'SCORE_MULTIPLIER':
+                        scoreMultiplier = 2;
+                        setTimeout(() => scoreMultiplier = 1, powerUpTypes[powerUp.type].duration);
+                        break;
+                    case 'SLOW_TIME':
+                        gameSpeed = Math.min(gameSpeed * 1.5, 300);
+                        setTimeout(() => updateSpeed(), powerUpTypes[powerUp.type].duration);
+                        break;
+                    case 'BONUS_POINTS':
+                        score += 50 * scoreMultiplier;
+                        scoreElement.textContent = `Score: ${score}`;
+                        break;
+                }
+            }
+            
+            // Particle system
+            function createParticles(x, y, color) {
+                for (let i = 0; i < 8; i++) {
+                    particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 1,
+                        color: color
+                    });
+                }
+            }
+            
+            function updateParticles(deltaTime) {
+                particles = particles.filter(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life -= deltaTime * 0.001;
+                    particle.vy += 0.1; // gravity
+                    return particle.life > 0;
+                });
+            }
 
             // Generate random food position
             function randomFood() {
