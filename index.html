@@ -88,16 +88,6 @@
             background: linear-gradient(135deg, #4285F4 0%, #0F4C75 100%);
         }
         
-        .space-invaders-bubble {
-            background: linear-gradient(135deg, #000011 0%, #00ff41 100%);
-            border: 2px solid #00ff41;
-            box-shadow: 0 8px 25px rgba(0,255,65,0.3);
-        }
-        
-        .space-invaders-bubble:hover {
-            box-shadow: 0 15px 35px rgba(0,255,65,0.5);
-        }
-        
         .game-icon {
             font-size: 3rem;
             margin-bottom: 10px;
@@ -110,7 +100,7 @@
         
         .terminal-info {
             position: fixed;
-            bottom: 70px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.7);
@@ -121,105 +111,51 @@
             text-align: center;
         }
         
-        .global-controls {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-        
-        .control-btn {
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        .control-btn:hover {
-            background: rgba(0,0,0,0.9);
-            border-color: white;
-            transform: translateY(-2px);
-        }
-        
         /* Mobile optimizations */
         @media (max-width: 768px) {
             h1 {
-                font-size: 2.2rem;
-                margin-bottom: 15px;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-                margin-bottom: 25px;
+                font-size: 2.5rem;
             }
             
             .game-bubble {
-                width: 130px;
-                height: 130px;
-                font-size: 0.9rem;
+                width: 150px;
+                height: 150px;
+                font-size: 1rem;
             }
             
             .game-icon {
-                font-size: 2.2rem;
-                margin-bottom: 8px;
+                font-size: 2.5rem;
             }
             
             .games-container {
-                gap: 15px;
-                margin-bottom: 15px;
+                gap: 20px;
             }
             
             .terminal-info {
-                bottom: 80px;
+                bottom: 10px;
                 left: 10px;
                 right: 10px;
                 transform: none;
-                font-size: 0.75rem;
-                padding: 8px 15px;
-            }
-            
-            .global-controls {
-                bottom: 40px;
-                left: 10px;
-                right: 10px;
-                transform: none;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            .control-btn {
-                font-size: 0.75rem;
-                padding: 5px 10px;
+                font-size: 0.8rem;
             }
         }
         
         @media (max-width: 480px) {
             .game-bubble {
-                width: 110px;
-                height: 110px;
+                width: 120px;
+                height: 120px;
             }
             
             .game-icon {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
             
             h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
             
             .subtitle {
-                font-size: 0.9rem;
-            }
-            
-            .games-container {
-                gap: 12px;
+                font-size: 1rem;
             }
         }
 
@@ -238,7 +174,7 @@
 </head>
 <body>
     <h1>🎮 Play Games</h1>
-    <p class="subtitle">Choose your adventure! Updated with Space Invaders 🚀</p>
+    <p class="subtitle">Choose your adventure!</p>
     
     <div class="games-container">
         <a href="snake.html" class="game-bubble snake-bubble" tabindex="1">
@@ -255,20 +191,10 @@
             <div class="game-icon">🏓</div>
             <div class="game-title">Pong</div>
         </a>
-        
-        <a href="space-invaders.html" class="game-bubble space-invaders-bubble" tabindex="4">
-            <div class="game-icon">👾</div>
-            <div class="game-title">Space Invaders</div>
-        </a>
     </div>
     
     <div class="terminal-info">
         💻 Terminal: Use ./play.sh [game] to launch games from bash
-    </div>
-    
-    <div class="global-controls">
-        <button id="sound-toggle" class="control-btn">🔊 Sound ON</button>
-        <button id="fullscreen-btn" class="control-btn">⛶ Fullscreen</button>
     </div>
 
     <script>
@@ -303,71 +229,6 @@
             bubble.addEventListener('touchend', function() {
                 this.style.transform = '';
             });
-        });
-        
-        // Global sound control
-        let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
-        const soundToggle = document.getElementById('sound-toggle');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        
-        function updateSoundToggle() {
-            soundToggle.textContent = soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF';
-            localStorage.setItem('soundEnabled', soundEnabled);
-        }
-        
-        soundToggle.addEventListener('click', function() {
-            soundEnabled = !soundEnabled;
-            updateSoundToggle();
-            
-            // Communicate to games via localStorage
-            window.dispatchEvent(new CustomEvent('soundToggle', { detail: soundEnabled }));
-        });
-        
-        // Fullscreen functionality
-        fullscreenBtn.addEventListener('click', function() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Error attempting to enable fullscreen:', err);
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        });
-        
-        // Update fullscreen button on state change
-        document.addEventListener('fullscreenchange', function() {
-            fullscreenBtn.textContent = document.fullscreenElement ? '⛶ Exit Fullscreen' : '⛶ Fullscreen';
-        });
-        
-        // Initialize sound toggle
-        updateSoundToggle();
-        
-        // Add installation prompt for PWA
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Show install button if supported
-            const installBtn = document.createElement('button');
-            installBtn.textContent = '📱 Install App';
-            installBtn.className = 'control-btn';
-            installBtn.style.marginLeft = '10px';
-            
-            installBtn.addEventListener('click', () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            console.log('User accepted the install prompt');
-                        }
-                        deferredPrompt = null;
-                        installBtn.remove();
-                    });
-                }
-            });
-            
-            document.querySelector('.global-controls').appendChild(installBtn);
         });
     </script>
 </body>

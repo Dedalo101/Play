@@ -18,18 +18,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             min-height: 100vh;
-            padding: 10px;
+            padding: 20px;
             color: white;
             touch-action: manipulation;
         }
         
         h1 {
             color: white;
-            margin: 10px 0;
+            margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-size: 2rem;
+            font-size: 2.5rem;
         }
         
         .back-link {
@@ -54,21 +54,20 @@
 
         .game-info {
             display: flex;
-            gap: 15px;
-            margin: 8px 0;
+            gap: 30px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .info-item {
             background-color: rgba(255,255,255,0.2);
-            padding: 6px 12px;
-            border-radius: 15px;
+            padding: 10px 20px;
+            border-radius: 20px;
             backdrop-filter: blur(10px);
             font-weight: bold;
-            min-width: 80px;
+            min-width: 100px;
             text-align: center;
-            font-size: 14px;
         }
         
         #game-container {
@@ -137,17 +136,6 @@
             100% { transform: scale(1); }
         }
         
-        @keyframes hintPulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 235, 59, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 235, 59, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 235, 59, 0); }
-        }
-        
-        @keyframes particleFade {
-            0% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(2); }
-        }
-        
         .number-1 { color: #1976d2; }
         .number-2 { color: #388e3c; }
         .number-3 { color: #d32f2f; }
@@ -159,25 +147,25 @@
         
         #controls {
             text-align: center;
-            margin: 10px 0;
+            margin: 20px 0;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
         }
         
         button {
-            padding: 8px 16px;
-            font-size: 14px;
+            padding: 12px 24px;
+            font-size: 16px;
             cursor: pointer;
             background-color: rgba(255,255,255,0.2);
             color: white;
             border: 2px solid white;
-            border-radius: 20px;
+            border-radius: 25px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             font-weight: bold;
-            min-width: 80px;
+            min-width: 100px;
         }
         
         button:hover:not(:disabled) {
@@ -194,16 +182,16 @@
 
         .difficulty-selector {
             display: flex;
-            gap: 8px;
-            margin: 8px 0;
+            gap: 10px;
+            margin: 20px 0;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .difficulty-btn {
-            padding: 6px 12px;
-            font-size: 12px;
-            min-width: 60px;
+            padding: 8px 16px;
+            font-size: 14px;
+            min-width: 80px;
         }
 
         .difficulty-btn.active {
@@ -212,14 +200,13 @@
         
         #instructions {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 20px;
             color: rgba(255,255,255,0.9);
             max-width: 400px;
             background-color: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
             backdrop-filter: blur(10px);
-            font-size: 12px;
         }
 
         .game-over {
@@ -258,41 +245,38 @@
         
         @media (max-width: 600px) {
             h1 {
-                font-size: 1.8rem;
-                margin: 5px 0;
+                font-size: 2rem;
             }
             
             .cell {
-                width: 22px;
-                height: 22px;
-                font-size: 11px;
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
             }
             
             .game-info {
-                gap: 10px;
+                gap: 15px;
             }
             
             .info-item {
-                padding: 4px 8px;
-                font-size: 12px;
-                min-width: 70px;
+                padding: 8px 15px;
+                font-size: 14px;
             }
             
             #controls {
-                gap: 6px;
+                flex-direction: column;
+                align-items: center;
             }
             
             button {
-                padding: 6px 12px;
-                font-size: 12px;
-                min-width: 70px;
+                width: 150px;
             }
             
             .back-link {
-                top: 5px;
-                left: 5px;
-                padding: 6px 10px;
-                font-size: 12px;
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 14px;
             }
         }
 
@@ -673,102 +657,22 @@
             cell.isRevealed = true;
             gameState.revealed++;
             
-            // Create particles for visual feedback
-            createMineParticles(col * 30 + 15, row * 25 + 15, cell.neighborMines > 0 ? '#4CAF50' : '#2196F3');
-            
             // If no neighboring mines, reveal neighbors automatically
             if (cell.neighborMines === 0) {
-                setTimeout(() => {
-                    for (let i = -1; i <= 1; i++) {
-                        for (let j = -1; j <= 1; j++) {
-                            const newRow = row + i;
-                            const newCol = col + j;
-                            
-                            if (newRow >= 0 && newRow < gameState.rows && 
-                                newCol >= 0 && newCol < gameState.cols) {
-                                revealCell(newRow, newCol);
-                            }
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        const newRow = row + i;
+                        const newCol = col + j;
+                        
+                        if (newRow >= 0 && newRow < gameState.rows && 
+                            newCol >= 0 && newCol < gameState.cols) {
+                            revealCell(newRow, newCol);
                         }
                     }
-                }, 50); // Small delay for cascade effect
+                }
             }
             
             updateDisplay();
-        }
-        
-        // Hint system
-        function giveHint() {
-            if (gameState.gameOver) return;
-            
-            // Find a safe cell to reveal
-            const safeCells = [];
-            for (let i = 0; i < gameState.rows; i++) {
-                for (let j = 0; j < gameState.cols; j++) {
-                    const cell = gameState.board[i][j];
-                    if (!cell.isRevealed && !cell.isFlagged && !cell.isMine) {
-                        safeCells.push({row: i, col: j});
-                    }
-                }
-            }
-            
-            if (safeCells.length > 0) {
-                const randomSafe = safeCells[Math.floor(Math.random() * safeCells.length)];
-                
-                // Highlight the hint cell
-                const cellElement = document.querySelector(`[data-row="${randomSafe.row}"][data-col="${randomSafe.col}"]`);
-                if (cellElement) {
-                    cellElement.style.animation = 'hintPulse 1s ease-in-out 3';
-                    setTimeout(() => {
-                        cellElement.style.animation = '';
-                    }, 3000);
-                }
-                
-                playClickSound();
-            } else {
-                // Find cells that should be flagged
-                const mineCells = [];
-                for (let i = 0; i < gameState.rows; i++) {
-                    for (let j = 0; j < gameState.cols; j++) {
-                        const cell = gameState.board[i][j];
-                        if (!cell.isFlagged && cell.isMine) {
-                            mineCells.push({row: i, col: j});
-                        }
-                    }
-                }
-                
-                if (mineCells.length > 0) {
-                    const randomMine = mineCells[Math.floor(Math.random() * mineCells.length)];
-                    const cellElement = document.querySelector(`[data-row="${randomMine.row}"][data-col="${randomMine.col}"]`);
-                    if (cellElement) {
-                        cellElement.style.animation = 'hintPulse 1s ease-in-out 3';
-                        cellElement.style.backgroundColor = '#ffeb3b';
-                        setTimeout(() => {
-                            cellElement.style.animation = '';
-                            if (!gameState.board[randomMine.row][randomMine.col].isFlagged) {
-                                cellElement.style.backgroundColor = '';
-                            }
-                        }, 3000);
-                    }
-                }
-            }
-        }
-        
-        // Particle system for visual feedback
-        function createMineParticles(x, y, color) {
-            // This would create visual particles, but for simplicity we'll just add a brief flash
-            const particle = document.createElement('div');
-            particle.style.position = 'absolute';
-            particle.style.left = x + 'px';
-            particle.style.top = y + 'px';
-            particle.style.width = '4px';
-            particle.style.height = '4px';
-            particle.style.backgroundColor = color;
-            particle.style.borderRadius = '50%';
-            particle.style.pointerEvents = 'none';
-            particle.style.animation = 'particleFade 0.5s ease-out forwards';
-            
-            document.body.appendChild(particle);
-            setTimeout(() => particle.remove(), 500);
         }
 
         function gameOver(won, explodedRow = -1, explodedCol = -1) {

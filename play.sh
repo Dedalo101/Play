@@ -28,8 +28,7 @@ show_menu() {
     echo -e "${YELLOW}  1) 🐍 Snake   ${NC} - Classic snake game with mobile support"
     echo -e "${YELLOW}  2) 💣 Mines   ${NC} - Minesweeper with touch controls"
     echo -e "${YELLOW}  3) 🏓 Pong    ${NC} - Classic Pong with AI and 2-player modes"
-    echo -e "${YELLOW}  4) 👾 Space   ${NC} - Space Invaders with waves and power-ups"
-    echo -e "${YELLOW}  5) 🏠 Menu    ${NC} - Main game selection menu"
+    echo -e "${YELLOW}  4) 🏠 Menu    ${NC} - Main game selection menu"
     echo ""
     echo -e "${BLUE}Commands:${NC}"
     echo -e "  ${WHITE}./play.sh [game]${NC}     - Launch specific game"
@@ -41,7 +40,6 @@ show_menu() {
     echo -e "  ${WHITE}./play.sh snake${NC}      - Launch Snake game"
     echo -e "  ${WHITE}./play.sh mines${NC}      - Launch Mines game"
     echo -e "  ${WHITE}./play.sh pong${NC}       - Launch Pong game"
-    echo -e "  ${WHITE}./play.sh space${NC}      - Launch Space Invaders game"
     echo ""
 }
 
@@ -65,7 +63,6 @@ show_help() {
     echo "  snake               Launch Snake game"
     echo "  mines               Launch Minesweeper game"  
     echo "  pong                Launch Pong game"
-    echo "  space               Launch Space Invaders game"
     echo "  index, main         Launch main game menu"
     echo ""
     echo -e "${YELLOW}FEATURES:${NC}"
@@ -100,10 +97,6 @@ launch_game() {
         "pong")
             file="pong.html"
             game_name="Pong Game"
-            ;;
-        "space"|"space-invaders"|"invaders")
-            file="space-invaders.html"
-            game_name="Space Invaders"
             ;;
         "menu"|"index"|"main"|"home")
             file="index.html"
@@ -177,9 +170,6 @@ launch_game() {
         "pong")
             echo -e "${YELLOW}🎮 Controls: W/S keys (desktop), Touch control at bottom (mobile)${NC}"
             ;;
-        "space")
-            echo -e "${YELLOW}🎮 Controls: Arrow keys to move, SPACEBAR to shoot (desktop), Touch buttons (mobile)${NC}"
-            ;;
     esac
 }
 
@@ -237,7 +227,7 @@ main() {
             ;;
         "list"|"ls"|"menu"|"")
             show_menu
-            echo -e "${WHITE}Enter game name (snake/mines/pong/space/menu): ${NC}"
+            echo -e "${WHITE}Enter game name (snake/mines/pong/menu): ${NC}"
             read -r choice
             if [[ -n "$choice" ]]; then
                 launch_game "$choice"

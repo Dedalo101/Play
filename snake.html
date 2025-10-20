@@ -18,19 +18,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             min-height: 100vh;
-            padding: 10px;
+            padding: 20px;
             touch-action: manipulation;
             color: white;
-            overflow-x: hidden;
+            overflow: hidden;
         }
         
         h1 {
             color: white;
-            margin: 10px 0;
+            margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-size: 2rem;
+            font-size: 2.5rem;
         }
         
         .back-link {
@@ -73,19 +73,19 @@
         }
         
         #score {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             color: white;
-            margin: 10px 0;
+            margin: 20px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
         .game-stats {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
             flex-wrap: wrap;
-            margin: 8px 0;
+            margin: 15px 0;
         }
         
         .stat-item {
@@ -101,48 +101,24 @@
         
         .difficulty-selector {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
-            margin: 8px 0;
+            margin: 15px 0;
             flex-wrap: wrap;
         }
         
         .difficulty-btn {
-            padding: 6px 12px;
-            font-size: 12px;
+            padding: 8px 16px;
+            font-size: 14px;
             background: rgba(255,255,255,0.1);
             color: white;
             border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
         .difficulty-btn.active {
-            background: rgba(255,255,255,0.3);
-            border-color: white;
-        }
-
-        .control-mode-selector {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin: 8px 0;
-            flex-wrap: wrap;
-        }
-        
-        .control-mode-btn {
-            padding: 6px 12px;
-            font-size: 12px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .control-mode-btn.active {
             background: rgba(255,255,255,0.3);
             border-color: white;
         }
@@ -164,25 +140,25 @@
         
         #controls {
             text-align: center;
-            margin: 10px 0;
+            margin: 20px 0;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
         }
         
         button {
-            padding: 8px 16px;
-            font-size: 14px;
+            padding: 12px 24px;
+            font-size: 16px;
             cursor: pointer;
             background-color: rgba(255,255,255,0.2);
             color: white;
             border: 2px solid white;
-            border-radius: 20px;
+            border-radius: 25px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             font-weight: bold;
-            min-width: 80px;
+            min-width: 100px;
         }
         
         button:hover:not(:disabled) {
@@ -199,23 +175,22 @@
         
         #instructions {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 20px;
             color: rgba(255,255,255,0.9);
             max-width: 400px;
             background-color: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
             backdrop-filter: blur(10px);
-            font-size: 12px;
         }
         
         /* Touch controls for mobile */
         #touch-controls {
             display: none;
             position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 10px auto;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
             border-radius: 50%;
             background-color: rgba(255,255,255,0.2);
             border: 3px solid white;
@@ -242,29 +217,23 @@
             }
             
             h1 {
-                font-size: 1.8rem;
-                margin: 5px 0;
+                font-size: 2rem;
             }
             
             #controls {
-                gap: 6px;
+                flex-direction: column;
+                align-items: center;
             }
             
             button {
-                padding: 6px 12px;
-                font-size: 12px;
-                min-width: 70px;
+                width: 150px;
             }
             
             .back-link {
-                top: 5px;
-                left: 5px;
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-            
-            #game-canvas {
-                max-width: 320px;
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 14px;
             }
         }
 
@@ -314,11 +283,6 @@
         <button class="difficulty-btn" data-difficulty="hard">Hard</button>
         <button class="difficulty-btn" data-difficulty="extreme">Extreme</button>
     </div>
-
-    <div class="control-mode-selector">
-        <button class="control-mode-btn active" data-mode="normal">Arrow Keys</button>
-        <button class="control-mode-btn" data-mode="circular">Circular Mode</button>
-    </div>
     
     <div id="controls">
         <button id="start-btn">Start Game</button>
@@ -332,9 +296,8 @@
     </div>
     
     <div id="instructions">
-        <p><strong>Desktop:</strong> <span id="control-instructions">Use arrow keys or WASD</span></p>
+        <p><strong>Desktop:</strong> Use arrow keys or WASD</p>
         <p><strong>Mobile:</strong> Use the touch circle below</p>
-        <p><strong>Circular Mode:</strong> Press Left/Right arrows or A/D to turn, snake moves automatically</p>
         <p>Eat the red food to grow and increase your score!</p>
     </div>
 
@@ -398,9 +361,6 @@
             let difficulty = 'normal';
             let scoreMultiplier = 1;
             let powerUpTimer = 0;
-            let controlMode = 'normal';
-            let currentAngle = 0; // For circular mode (0 = right, 90 = down, 180 = left, 270 = up)
-            let angularVelocity = 0; // Turning speed in degrees per frame
             
             // Difficulty settings
             const difficultySettings = {
@@ -709,36 +669,6 @@
                     powerUpTimer = 0;
                 }
 
-                // Handle circular mode movement
-                if (controlMode === 'circular') {
-                    // Update angle based on angular velocity
-                    currentAngle += angularVelocity;
-                    if (currentAngle >= 360) currentAngle -= 360;
-                    if (currentAngle < 0) currentAngle += 360;
-                    
-                    // Convert angle to direction (snap to 4 directions)
-                    let snapAngle = Math.round(currentAngle / 90) * 90;
-                    switch (snapAngle % 360) {
-                        case 0: // Right
-                            if (direction.x !== -gridSize) nextDirection = {x: gridSize, y: 0};
-                            break;
-                        case 90: // Down
-                            if (direction.y !== -gridSize) nextDirection = {x: 0, y: gridSize};
-                            break;
-                        case 180: // Left
-                            if (direction.x !== gridSize) nextDirection = {x: -gridSize, y: 0};
-                            break;
-                        case 270: // Up
-                            if (direction.y !== gridSize) nextDirection = {x: 0, y: -gridSize};
-                            break;
-                    }
-                    
-                    // Ensure snake keeps moving forward if no direction is set (at start)
-                    if (direction.x === 0 && direction.y === 0) {
-                        nextDirection = {x: gridSize, y: 0}; // Start moving right
-                    }
-                }
-
                 direction = nextDirection;
 
                 const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
@@ -850,11 +780,6 @@
                 direction = {x: gridSize, y: 0};
                 nextDirection = {x: gridSize, y: 0};
                 gameSpeed = baseSpeed;
-                
-                // Initialize circular mode variables
-                currentAngle = 0; // Start facing right
-                angularVelocity = 0;
-                
                 randomFood();
                 
                 startBtn.disabled = true;
@@ -865,7 +790,7 @@
                     draw();
                 }, gameSpeed);
                 
-                console.log('Game started successfully with difficulty:', difficulty, 'control mode:', controlMode);
+                console.log('Game started successfully with difficulty:', difficulty);
             }
 
             // Pause/Resume game
@@ -889,11 +814,6 @@
                 direction = {x: 0, y: 0};
                 nextDirection = {x: 0, y: 0};
                 gameSpeed = baseSpeed;
-                
-                // Reset circular mode variables
-                currentAngle = 0;
-                angularVelocity = 0;
-                
                 draw();
                 
                 startBtn.disabled = false;
@@ -909,42 +829,18 @@
                 
                 const key = e.key.toLowerCase();
                 
-                if (controlMode === 'circular') {
-                    // In circular mode, left/right turn the snake, it moves forward automatically
-                    if (key === 'arrowleft' || key === 'a') {
-                        angularVelocity = -3; // Turn left (counter-clockwise)
-                        console.log('Turning left in circular mode');
-                    } else if (key === 'arrowright' || key === 'd') {
-                        angularVelocity = 3; // Turn right (clockwise)
-                        console.log('Turning right in circular mode');
-                    }
-                } else {
-                    // Normal arrow key controls
-                    if ((key === 'arrowleft' || key === 'a') && direction.x === 0) {
-                        nextDirection = {x: -gridSize, y: 0};
-                        console.log('Moving left');
-                    } else if ((key === 'arrowup' || key === 'w') && direction.y === 0) {
-                        nextDirection = {x: 0, y: -gridSize};
-                        console.log('Moving up');
-                    } else if ((key === 'arrowright' || key === 'd') && direction.x === 0) {
-                        nextDirection = {x: gridSize, y: 0};
-                        console.log('Moving right');
-                    } else if ((key === 'arrowdown' || key === 's') && direction.y === 0) {
-                        nextDirection = {x: 0, y: gridSize};
-                        console.log('Moving down');
-                    }
-                }
-            });
-
-            // Handle key release for circular mode
-            document.addEventListener('keyup', function(e) {
-                if (!gameRunning || gamePaused || controlMode !== 'circular') return;
-                
-                const key = e.key.toLowerCase();
-                
-                // Stop turning when key is released
-                if (key === 'arrowleft' || key === 'a' || key === 'arrowright' || key === 'd') {
-                    angularVelocity = 0;
+                if ((key === 'arrowleft' || key === 'a') && direction.x === 0) {
+                    nextDirection = {x: -gridSize, y: 0};
+                    console.log('Moving left');
+                } else if ((key === 'arrowup' || key === 'w') && direction.y === 0) {
+                    nextDirection = {x: 0, y: -gridSize};
+                    console.log('Moving up');
+                } else if ((key === 'arrowright' || key === 'd') && direction.x === 0) {
+                    nextDirection = {x: gridSize, y: 0};
+                    console.log('Moving right');
+                } else if ((key === 'arrowdown' || key === 's') && direction.y === 0) {
+                    nextDirection = {x: 0, y: gridSize};
+                    console.log('Moving down');
                 }
             });
 
@@ -1004,37 +900,16 @@
             startBtn.addEventListener('click', startGame);
             pauseBtn.addEventListener('click', togglePause);
             resetBtn.addEventListener('click', resetGame);
-            
+
             // Difficulty selection
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    if (gameRunning) return; // Can't change difficulty during game
+                    if (gameRunning) return; // Can't change during game
                     
                     document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     difficulty = this.dataset.difficulty;
                     console.log('Difficulty changed to:', difficulty);
-                });
-            });
-
-            // Control mode selection
-            document.querySelectorAll('.control-mode-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (gameRunning) return; // Can't change control mode during game
-                    
-                    document.querySelectorAll('.control-mode-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    controlMode = this.dataset.mode;
-                    
-                    // Update instructions based on control mode
-                    const instructionsElement = document.getElementById('control-instructions');
-                    if (controlMode === 'circular') {
-                        instructionsElement.textContent = 'Left/Right arrows or A/D to turn (auto-move)';
-                    } else {
-                        instructionsElement.textContent = 'Use arrow keys or WASD';
-                    }
-                    
-                    console.log('Control mode changed to:', controlMode);
                 });
             });
 
