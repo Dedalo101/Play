@@ -28,9 +28,9 @@
         
         h1 {
             color: white;
-            margin-bottom: 20px;
+            margin: 10px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
         
         .back-link {
@@ -73,19 +73,19 @@
         }
         
         #score {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: white;
-            margin: 20px 0;
+            margin: 10px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
         .game-stats {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             justify-content: center;
             flex-wrap: wrap;
-            margin: 15px 0;
+            margin: 8px 0;
         }
         
         .stat-item {
@@ -101,19 +101,19 @@
         
         .difficulty-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
-            margin: 15px 0;
+            margin: 8px 0;
             flex-wrap: wrap;
         }
         
         .difficulty-btn {
-            padding: 8px 16px;
-            font-size: 14px;
+            padding: 6px 12px;
+            font-size: 12px;
             background: rgba(255,255,255,0.1);
             color: white;
             border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
+            border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -125,19 +125,19 @@
 
         .control-mode-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
-            margin: 15px 0;
+            margin: 8px 0;
             flex-wrap: wrap;
         }
         
         .control-mode-btn {
-            padding: 8px 16px;
-            font-size: 14px;
+            padding: 6px 12px;
+            font-size: 12px;
             background: rgba(255,255,255,0.1);
             color: white;
             border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
+            border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -164,25 +164,25 @@
         
         #controls {
             text-align: center;
-            margin: 20px 0;
+            margin: 10px 0;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             flex-wrap: wrap;
         }
         
         button {
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 8px 16px;
+            font-size: 14px;
             cursor: pointer;
             background-color: rgba(255,255,255,0.2);
             color: white;
             border: 2px solid white;
-            border-radius: 25px;
+            border-radius: 20px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             font-weight: bold;
-            min-width: 100px;
+            min-width: 80px;
         }
         
         button:hover:not(:disabled) {
@@ -199,22 +199,23 @@
         
         #instructions {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 10px;
             color: rgba(255,255,255,0.9);
             max-width: 400px;
             background-color: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             backdrop-filter: blur(10px);
+            font-size: 12px;
         }
         
         /* Touch controls for mobile */
         #touch-controls {
             display: none;
             position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 20px auto;
+            width: 120px;
+            height: 120px;
+            margin: 10px auto;
             border-radius: 50%;
             background-color: rgba(255,255,255,0.2);
             border: 3px solid white;
@@ -241,23 +242,29 @@
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+                margin: 5px 0;
             }
             
             #controls {
-                flex-direction: column;
-                align-items: center;
+                gap: 6px;
             }
             
             button {
-                width: 150px;
+                padding: 6px 12px;
+                font-size: 12px;
+                min-width: 70px;
             }
             
             .back-link {
-                top: 10px;
-                left: 10px;
-                padding: 8px 12px;
-                font-size: 14px;
+                top: 5px;
+                left: 5px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            #game-canvas {
+                max-width: 320px;
             }
         }
 

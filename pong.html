@@ -18,18 +18,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
             color: white;
             touch-action: manipulation;
         }
         
         h1 {
             color: white;
-            margin-bottom: 20px;
+            margin: 10px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
         
         .back-link {
@@ -54,26 +54,26 @@
 
         .game-info {
             display: flex;
-            gap: 30px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin: 8px 0;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .score-item {
             background-color: rgba(255,255,255,0.2);
-            padding: 15px 25px;
-            border-radius: 20px;
+            padding: 8px 15px;
+            border-radius: 15px;
             backdrop-filter: blur(10px);
             font-weight: bold;
             text-align: center;
-            min-width: 120px;
+            min-width: 80px;
         }
 
         .score-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             display: block;
-            margin-top: 5px;
+            margin-top: 2px;
         }
         
         #game-container {
@@ -98,25 +98,25 @@
         
         #controls {
             text-align: center;
-            margin: 20px 0;
+            margin: 10px 0;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             flex-wrap: wrap;
         }
         
         button {
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 8px 16px;
+            font-size: 14px;
             cursor: pointer;
             background-color: rgba(255,255,255,0.2);
             color: white;
             border: 2px solid white;
-            border-radius: 25px;
+            border-radius: 20px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             font-weight: bold;
-            min-width: 100px;
+            min-width: 80px;
         }
         
         button:hover:not(:disabled) {
@@ -133,16 +133,16 @@
 
         .game-mode {
             display: flex;
-            gap: 10px;
-            margin: 20px 0;
+            gap: 8px;
+            margin: 8px 0;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .mode-btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            min-width: 100px;
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: 70px;
         }
 
         .mode-btn.active {
@@ -151,13 +151,14 @@
         
         #instructions {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 10px;
             color: rgba(255,255,255,0.9);
             max-width: 500px;
             background-color: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             backdrop-filter: blur(10px);
+            font-size: 12px;
         }
 
         /* Mobile touch controls */
@@ -230,7 +231,8 @@
         
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+                margin: 5px 0;
             }
             
             .game-info {
@@ -238,40 +240,46 @@
             }
             
             .score-item {
-                padding: 10px 20px;
-                min-width: 100px;
+                padding: 6px 12px;
+                min-width: 70px;
+                font-size: 14px;
             }
 
             .score-value {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
             
             #controls {
-                flex-direction: column;
-                align-items: center;
+                gap: 6px;
             }
             
             button {
-                width: 150px;
+                padding: 6px 12px;
+                font-size: 12px;
+                min-width: 70px;
             }
             
             .back-link {
-                top: 10px;
-                left: 10px;
-                padding: 8px 12px;
-                font-size: 14px;
+                top: 5px;
+                left: 5px;
+                padding: 6px 10px;
+                font-size: 12px;
             }
 
             .touch-controls {
                 display: block;
+                position: fixed;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 250px;
+                height: 80px;
             }
 
             #instructions {
-                margin-bottom: 120px;
+                margin-bottom: 100px;
             }
-        }
-
-        @media (max-width: 480px) {
+        }        @media (max-width: 480px) {
             h1 {
                 font-size: 1.8rem;
             }
