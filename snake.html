@@ -731,13 +731,23 @@
                 startBtn.disabled = false;
                 pauseBtn.disabled = true;
                 
+                // Update high score
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('snakeHighScore', highScore);
+                    highScoreElement.textContent = highScore;
+                }
+                
                 // Vibrate on mobile if supported
                 if (navigator.vibrate) {
                     navigator.vibrate([200, 100, 200]);
                 }
                 
                 setTimeout(() => {
-                    alert(`🐍 Game Over! 🐍\nFinal Score: ${score}\n\nTry again to beat your score!`);
+                    const message = score > parseInt(localStorage.getItem('snakeHighScore') || 0) - score ?
+                        `🎉 NEW HIGH SCORE! 🎉\nScore: ${score}\nLevel: ${level}\nLength: ${snake.length}` :
+                        `🐍 Game Over! 🐍\nScore: ${score}\nLevel: ${level}\nLength: ${snake.length}\nHigh Score: ${highScore}`;
+                    alert(message);
                 }, 100);
             }
 
