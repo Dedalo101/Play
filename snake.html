@@ -10,47 +10,302 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            touch-action: manipulation;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #00C851 0%, #007E33 100%);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            touch-action: manipulation;
-            color: white;
             overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            color: white;
         }
         
-        h1 {
-            color: white;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-size: 2.5rem;
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            z-index: 100;
         }
         
         .back-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            padding: 10px 15px;
+            padding: 8px 16px;
             background-color: rgba(255,255,255,0.2);
             color: white;
             text-decoration: none;
             border-radius: 20px;
             font-weight: bold;
-            z-index: 10;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .back-link:hover, .back-link:active {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+        
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            min-width: 60px;
+        }
+        
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 10px;
+        }
+        
+        #game-canvas {
+            background-color: #001a00;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+        
+        .game-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+        
+        .control-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:hover, .control-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .difficulty-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            z-index: 50;
+        }
+        
+        .difficulty-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .back-link:hover {
-            background-color: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
+        .difficulty-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+        
+        #touch-controls {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 50;
+        }
+        
+        #touch-stick {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s;
+            pointer-events: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .power-up-indicator {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(255, 215, 0, 0.9);
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .game-header {
+                padding: 8px 15px;
+            }
+            
+            .game-title {
+                font-size: 1.2rem;
+            }
+            
+            .game-stats {
+                gap: 8px;
+                font-size: 12px;
+            }
+            
+            .stat-item {
+                padding: 4px 8px;
+                min-width: 50px;
+            }
+            
+            #touch-controls {
+                display: block;
+            }
+            
+            .game-controls {
+                bottom: 10px;
+                gap: 8px;
+            }
+            
+            .control-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+            
+            .difficulty-selector {
+                top: 15px;
+                right: 15px;
+                gap: 3px;
+            }
+            
+            .difficulty-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            #game-canvas {
+                width: calc(100vw - 20px);
+                height: calc(100vh - 140px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .game-header {
+                padding: 5px 10px;
+            }
+            
+            .game-title {
+                font-size: 1rem;
+            }
+            
+            .back-link {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            #touch-controls {
+                width: 100px;
+                height: 100px;
+                bottom: 70px;
+            }
+            
+            #touch-stick {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .game-header {
+                padding: 5px 15px;
+            }
+            
+            .game-title {
+                font-size: 1rem;
+            }
+            
+            .game-stats {
+                font-size: 11px;
+                gap: 5px;
+            }
+            
+            .stat-item {
+                padding: 3px 6px;
+            }
+            
+            #game-canvas {
+                height: calc(100vh - 80px);
+            }
+            
+            .game-controls {
+                bottom: 5px;
+            }
+            
+            #touch-controls {
+                bottom: 40px;
+                width: 80px;
+                height: 80px;
+            }
         }
         
         #game-container {
@@ -255,25 +510,19 @@
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-link">← Menu</a>
-    
-    <h1>🐍 Snake Game</h1>
-    
-    <div id="game-container">
-        <canvas id="game-canvas" width="400" height="400"></canvas>
-    </div>
-    
-    <div id="score">Score: 0</div>
-    
-    <div class="game-stats">
-        <div class="stat-item">
-            Level: <span id="level">1</span>
-        </div>
-        <div class="stat-item">
-            Length: <span id="length">1</span>
-        </div>
-        <div class="stat-item">
-            High Score: <span id="high-score">0</span>
+    <div class="game-header">
+        <a href="index.html" class="back-link">← Menu</a>
+        <div class="game-title">🐍 Snake</div>
+        <div class="game-stats">
+            <div class="stat-item">
+                Score: <span id="score">0</span>
+            </div>
+            <div class="stat-item">
+                Level: <span id="level">1</span>
+            </div>
+            <div class="stat-item">
+                Best: <span id="high-score">0</span>
+            </div>
         </div>
     </div>
     
@@ -284,21 +533,23 @@
         <button class="difficulty-btn" data-difficulty="extreme">Extreme</button>
     </div>
     
-    <div id="controls">
-        <button id="start-btn">Start Game</button>
-        <button id="pause-btn" disabled>Pause</button>
-        <button id="reset-btn">Reset</button>
+    <div class="game-container">
+        <canvas id="game-canvas" width="600" height="400"></canvas>
+        
+        <div class="power-up-indicator" id="power-up-indicator">
+            ⚡ Power-up Active!
+        </div>
+    </div>
+    
+    <div class="game-controls">
+        <button class="control-btn" id="start-btn">Start</button>
+        <button class="control-btn" id="pause-btn" disabled>Pause</button>
+        <button class="control-btn" id="reset-btn">Reset</button>
     </div>
     
     <!-- Touch controls for mobile -->
     <div id="touch-controls">
         <div id="touch-stick"></div>
-    </div>
-    
-    <div id="instructions">
-        <p><strong>Desktop:</strong> Use arrow keys or WASD</p>
-        <p><strong>Mobile:</strong> Use the touch circle below</p>
-        <p>Eat the red food to grow and increase your score!</p>
     </div>
 
     <script>
@@ -328,6 +579,9 @@
             }
             
             const scoreElement = document.getElementById('score');
+            const levelElement = document.getElementById('level');
+            const highScoreElement = document.getElementById('high-score');
+            const powerUpIndicator = document.getElementById('power-up-indicator');
             const startBtn = document.getElementById('start-btn');
             const pauseBtn = document.getElementById('pause-btn');
             const resetBtn = document.getElementById('reset-btn');
@@ -459,11 +713,6 @@
             }
 
             // Initialize game elements
-            const levelElement = document.getElementById('level');
-            const lengthElement = document.getElementById('length');
-            const highScoreElement = document.getElementById('high-score');
-            
-            // Update high score display
             if (highScoreElement) {
                 highScoreElement.textContent = highScore;
             }
@@ -693,8 +942,7 @@
                 if (head.x === food.x && head.y === food.y) {
                     const points = Math.floor(10 * scoreMultiplier * difficultySettings[difficulty].scoreMultiplier);
                     score += points;
-                    scoreElement.textContent = `Score: ${score}`;
-                    lengthElement.textContent = snake.length;
+                    scoreElement.textContent = score;
                     
                     // Check for level up
                     const newLevel = Math.floor(snake.length / 5) + 1;
@@ -772,9 +1020,8 @@
                 powerUps = [];
                 particles = [];
                 
-                scoreElement.textContent = 'Score: 0';
+                scoreElement.textContent = '0';
                 levelElement.textContent = '1';
-                lengthElement.textContent = '1';
                 
                 snake = [{x: 200, y: 200}];
                 direction = {x: gridSize, y: 0};
