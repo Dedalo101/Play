@@ -28,7 +28,8 @@ show_menu() {
     echo -e "${YELLOW}  1) 🐍 Snake   ${NC} - Classic snake game with mobile support"
     echo -e "${YELLOW}  2) 💣 Mines   ${NC} - Minesweeper with touch controls"
     echo -e "${YELLOW}  3) 🏓 Pong    ${NC} - Classic Pong with AI and 2-player modes"
-    echo -e "${YELLOW}  4) 🏠 Menu    ${NC} - Main game selection menu"
+    echo -e "${YELLOW}  4) 👾 Space   ${NC} - Space Invaders retro arcade action"
+    echo -e "${YELLOW}  5) 🏠 Menu    ${NC} - Main game selection menu"
     echo ""
     echo -e "${BLUE}Commands:${NC}"
     echo -e "  ${WHITE}./play.sh [game]${NC}     - Launch specific game"
@@ -40,6 +41,7 @@ show_menu() {
     echo -e "  ${WHITE}./play.sh snake${NC}      - Launch Snake game"
     echo -e "  ${WHITE}./play.sh mines${NC}      - Launch Mines game"
     echo -e "  ${WHITE}./play.sh pong${NC}       - Launch Pong game"
+    echo -e "  ${WHITE}./play.sh space${NC}      - Launch Space Invaders game"
     echo ""
 }
 
@@ -97,6 +99,10 @@ launch_game() {
         "pong")
             file="pong.html"
             game_name="Pong Game"
+            ;;
+        "space"|"space-invaders"|"invaders")
+            file="space-invaders.html"
+            game_name="Space Invaders Game"
             ;;
         "menu"|"index"|"main"|"home")
             file="index.html"
