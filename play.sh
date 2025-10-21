@@ -30,12 +30,15 @@ echo "  mines        - Minesweeper game"
 echo "  pong         - Classic Pong game"
 echo "  space        - Space Invaders game"
 echo "  kong         - Donkey Kong game"
+echo "  doom         - Doom FPS game"
 echo "  list         - Show this list"
     echo -e "${YELLOW}  1) 🐍 Snake   ${NC} - Classic snake game with mobile support"
     echo -e "${YELLOW}  2) 💣 Mines   ${NC} - Minesweeper with touch controls"
     echo -e "${YELLOW}  3) 🏓 Pong    ${NC} - Classic Pong with AI and 2-player modes"
     echo -e "${YELLOW}  4) 👾 Space   ${NC} - Space Invaders retro arcade action"
-    echo -e "${YELLOW}  5) 🏠 Menu    ${NC} - Main game selection menu"
+    echo -e "${YELLOW}  5) 🦍 Kong    ${NC} - Donkey Kong platformer adventure"
+    echo -e "${YELLOW}  6) 🔫 Doom    ${NC} - First-person shooter action"
+    echo -e "${YELLOW}  7) 🏠 Menu    ${NC} - Main game selection menu"
     echo ""
     echo -e "${BLUE}Commands:${NC}"
     echo -e "  ${WHITE}./play.sh [game]${NC}     - Launch specific game"
@@ -73,6 +76,7 @@ show_help() {
     echo "  pong                Launch Pong game"
     echo "  space               Launch Space Invaders game"
     echo "  kong                Launch Donkey Kong game"
+    echo "  doom                Launch Doom FPS game"
     echo "  index, main         Launch main game menu"
     echo ""
     echo -e "${YELLOW}FEATURES:${NC}"
@@ -115,6 +119,10 @@ launch_game() {
         "kong"|"donkey"|"donkey-kong")
             file="donkey-kong.html"
             game_name="Donkey Kong Game"
+            ;;
+        "doom"|"fps"|"doom-fps")
+            file="doom.html"
+            game_name="Doom FPS Game"
             ;;
         "menu"|"index"|"main"|"home")
             file="index.html"
