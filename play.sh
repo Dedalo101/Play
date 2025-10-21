@@ -24,7 +24,13 @@ show_menu() {
     echo -e "${CYAN}║${WHITE}                    🎮 AGG HOMES GAMES 🎮                    ${CYAN}║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${GREEN}Available Games:${NC}"
+    echo "Available games:"
+echo "  snake        - Classic Snake game"
+echo "  mines        - Minesweeper game"  
+echo "  pong         - Classic Pong game"
+echo "  space        - Space Invaders game"
+echo "  kong         - Donkey Kong game"
+echo "  list         - Show this list"
     echo -e "${YELLOW}  1) 🐍 Snake   ${NC} - Classic snake game with mobile support"
     echo -e "${YELLOW}  2) 💣 Mines   ${NC} - Minesweeper with touch controls"
     echo -e "${YELLOW}  3) 🏓 Pong    ${NC} - Classic Pong with AI and 2-player modes"
@@ -65,6 +71,8 @@ show_help() {
     echo "  snake               Launch Snake game"
     echo "  mines               Launch Minesweeper game"  
     echo "  pong                Launch Pong game"
+    echo "  space               Launch Space Invaders game"
+    echo "  kong                Launch Donkey Kong game"
     echo "  index, main         Launch main game menu"
     echo ""
     echo -e "${YELLOW}FEATURES:${NC}"
@@ -103,6 +111,10 @@ launch_game() {
         "space"|"space-invaders"|"invaders")
             file="space-invaders.html"
             game_name="Space Invaders Game"
+            ;;
+        "kong"|"donkey"|"donkey-kong")
+            file="donkey-kong.html"
+            game_name="Donkey Kong Game"
             ;;
         "menu"|"index"|"main"|"home")
             file="index.html"
@@ -233,7 +245,7 @@ main() {
             ;;
         "list"|"ls"|"menu"|"")
             show_menu
-            echo -e "${WHITE}Enter game name (snake/mines/pong/menu): ${NC}"
+            echo -e "${WHITE}Enter game name (snake/mines/pong/space/kong/menu): ${NC}"
             read -r choice
             if [[ -n "$choice" ]]; then
                 launch_game "$choice"
